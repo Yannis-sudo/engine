@@ -1,0 +1,85 @@
+# Betriebssystem
+.DS_Store
+Thumbs.db
+
+# Build-Ausgaben (CMake / generisch)
+build/
+cmake-build-*/
+bin/
+lib/
+out/
+dist/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+Testing/
+CTestTestfile.cmake
+Makefile
+
+# Objektdateien / Bibliotheken / Executables
+*.o
+*.obj
+*.lo
+*.la
+*.al
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+
+# Compiler- und Coverage-Dateien
+*.gcno
+*.gcda
+*.gcov
+*.prof
+
+# Generated compilation database (optional)
+compile_commands.json
+
+# IDEs / Editoren
+.vscode/
+!.vscode/extensions.json    # optional: Empfehlungen für Extensions behalten
+# Wenn du Workspace-Dateien versionieren willst, entferne die folgende Zeile:
+# !.vscode/*.code-workspace
+
+# IntelliJ/CLion (falls vorhanden)
+.idea/
+*.iml
+
+# Backup / temporäre Dateien / Swap
+*~
+*.swp
+*.tmp
+*.bak
+*.pid
+
+# Logs
+*.log
+logs/
+
+# Paketmanager / C++ dependency managers
+vcpkg_installed/
+.vcpkg/
+.conan/
+
+# Build system directories (weitere Beispiele)
+build-*/
+_out/
+
+# Coverage / Test artefacts
+coverage/
+coverage.info
+
+# Secrets / lokale Umgebungen
+.env
+.env.local
+.secrets/
+
+# Core dumps
+core
