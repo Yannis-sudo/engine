@@ -38,19 +38,29 @@ Makefile
 *.gcda
 *.gcov
 *.prof
+*.lcov
+
+# Linker / Debug / Index
+*.pdb
+*.idb
+*.map
 
 # Generated compilation database (optional)
 compile_commands.json
+# wenn du es behalten willst, stattdessen: !compile_commands.json
 
 # IDEs / Editoren
 .vscode/
-!.vscode/extensions.json    # optional: Empfehlungen für Extensions behalten
+!.vscode/extensions.json
 # Wenn du Workspace-Dateien versionieren willst, entferne die folgende Zeile:
 # !.vscode/*.code-workspace
 
 # IntelliJ/CLion (falls vorhanden)
 .idea/
 *.iml
+
+# Visual Studio
+.vs/
 
 # Backup / temporäre Dateien / Swap
 *~
@@ -83,3 +93,9 @@ coverage.info
 
 # Core dumps
 core
+
+# Tags / caches / index
+tags
+.cache/
+.clangd/
+.ccls
