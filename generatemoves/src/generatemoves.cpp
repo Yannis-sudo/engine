@@ -2,7 +2,7 @@
 #include "../include/magic.h"
 #include "../../global/include/bitboard.h"
 
-void generateKnightMoves(const Board &board, Color side, MoveList &list)
+void generateKnightMoves(const Board &board, Color side, MoveList &list) noexcept
 {
     Bitboard knights = board.pieces[side][KNIGHT];
 
@@ -11,25 +11,16 @@ void generateKnightMoves(const Board &board, Color side, MoveList &list)
         int from = popLSB(knights);
         Bitboard attacks = knightAttacks[from] & ~board.occupied[side];
 
-        // Quiet
-        Bitboard quiet = attacks & ~board.occupiedAll;
-        while (quiet)
+        while (attacks)
         {
-            int to = popLSB(quiet);
-            list.add({from, to, KNIGHT, false, false, false, false});
-        }
-
-        // Captures
-        Bitboard captures = attacks & board.occupied[!side];
-        while (captures)
-        {
-            int to = popLSB(captures);
-            list.add({from, to, KNIGHT, true, false, false, false});
+            int to = popLSB(attacks);
+            bool isCapture = (board.occupied[!side] & (1ULL << to)) != 0;
+            list.add({from, to, KNIGHT, isCapture, false, false, false});
         }
     }
 }
 
-void generateKingMoves(const Board &board, Color side, MoveList &list)
+void generateKingMoves(const Board &board, Color side, MoveList &list) noexcept
 {
     Bitboard king = board.pieces[side][KING];
 
@@ -38,25 +29,17 @@ void generateKingMoves(const Board &board, Color side, MoveList &list)
         int from = popLSB(king);
         Bitboard attacks = kingAttacks[from] & ~board.occupied[side];
 
-        // Quiet
-        Bitboard quiet = attacks & ~board.occupiedAll;
-        while (quiet)
+        while (attacks)
         {
-            int to = popLSB(quiet);
-            list.add({from, to, KING, false, false, false, false});
+            int to = popLSB(attacks);
+            bool isCapture = (board.occupied[!side] & (1ULL << to)) != 0;
+            list.add({from, to, KING, isCapture, false, false, false});
         }
-
-        // Captures
-        Bitboard captures = attacks & board.occupied[!side];
-        while (captures)
-        {
-            int to = popLSB(captures);
-            list.add({from, to, KING, true, false, false, false});
-        }
+        
     }
 }
 
-void generateBishopMoves(const Board &board, Color side, MoveList &list)
+void generateBishopMoves(const Board &board, Color side, MoveList &list) noexcept
 {
     Bitboard bishops = board.pieces[side][BISHOP];
     Bitboard occ = board.occupiedAll;
@@ -66,25 +49,15 @@ void generateBishopMoves(const Board &board, Color side, MoveList &list)
         int from = popLSB(bishops);
         Bitboard attacks = getBishopAttacks(from, occ);
 
-        // Quiet moves
-        Bitboard quiet = attacks & ~board.occupiedAll;
-        while (quiet)
-        {
-            int to = popLSB(quiet);
-            list.add({from, to, BISHOP, false, false, false, false});
-        }
-
-        // Captures
-        Bitboard captures = attacks & board.occupied[!side];
-        while (captures)
-        {
-            int to = popLSB(captures);
-            list.add({from, to, BISHOP, true, false, false, false});
+        while (attacks) {
+            int to = popLSB(attacks);
+            bool isCapture = (board.occupied[!side] & (1ULL << to)) != 0;
+            list.add({from, to , BISHOP, isCapture, false, false, false});
         }
     }
 }
 
-void generateRookMoves(const Board &board, Color side, MoveList &list)
+void generateRookMoves(const Board &board, Color side, MoveList &list) noexcept
 {
     Bitboard rooks = board.pieces[side][ROOK];
     Bitboard occ = board.occupiedAll;
@@ -92,27 +65,18 @@ void generateRookMoves(const Board &board, Color side, MoveList &list)
     while (rooks)
     {
         int from = popLSB(rooks);
-        Bitboard attacks = getRookAttacks(from, occ);
+        Bitboard attacks = getRookAttacks(from, occ); // Lookup rook attacks
 
         // Quiet moves
-        Bitboard quiet = attacks & ~board.occupiedAll;
-        while (quiet)
-        {
-            int to = popLSB(quiet);
-            list.add({from, to, ROOK, false, false, false, false});
-        }
-
-        // Captures
-        Bitboard captures = attacks & board.occupied[!side];
-        while (captures)
-        {
-            int to = popLSB(captures);
-            list.add({from, to, ROOK, true, false, false, false});
+        while (attacks) {
+            int to = popLSB(attacks);
+            bool isCapture = (board.occupied[!side] & (1ULL << to)) != 0;
+            list.add({from, to , ROOK, isCapture, false, false, false});
         }
     }
 }
 
-void generateQueenMoves(const Board &board, Color side, MoveList &list)
+void generateQueenMoves(const Board &board, Color side, MoveList &list) noexcept
 {
     Bitboard queens = board.pieces[side][QUEEN];
     Bitboard occ = board.occupiedAll;
@@ -122,20 +86,10 @@ void generateQueenMoves(const Board &board, Color side, MoveList &list)
         int from = popLSB(queens);
         Bitboard attacks = getQueenAttacks(from, occ);
 
-        // Quiet Moves
-        Bitboard quiet = attacks & ~board.occupiedAll;
-        while (quiet)
-        {
-            int to = popLSB(quiet);
-            list.add({from, to, QUEEN, false, false, false, false});
-        }
-
-        // Captures
-        Bitboard captures = attacks & board.occupied[!side];
-        while (captures)
-        {
-            int to = popLSB(captures);
-            list.add({from, to, QUEEN, true, false, false, false});
+        while (attacks) {
+            int to = popLSB(attacks);
+            bool isCapture = (board.occupied[!side] & (1ULL << to)) != 0;
+            list.add({from, to , QUEEN, isCapture, false, false, false});
         }
     }
 }

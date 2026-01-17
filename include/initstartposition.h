@@ -44,10 +44,7 @@ Board initStartPosition()
 
     // Status
     board.sideToMove =  WHITE;
-    board.whiteCanCastleKingside = true;
-    board.whiteCanCastleQueenside = true;
-    board.blackCanCastleKingside = true;
-    board.blackCanCastleQueenside = true;
+    board.castlingRights = 1 | 1 | 1 | 1; // KQkq
     board.en_passant_square = -1;
     board.halfmoveclock = 0;
     board.fullmoveNumber = 1;
