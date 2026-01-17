@@ -142,19 +142,33 @@ void generateQueenMoves(const Board &board, Color side, MoveList &list)
 
 MoveList generateMoves(Board &board)
 {
-    Board currentBoard;
     MoveList list;
+
+    // local side variables
     Color side = board.sideToMove;
+    Color opp = (Color)(side ^ 1);
 
-    Color oppositeside = side == WHITE  ? BLACK : WHITE;
+    // Thread
+    #pragma omp parallel sections
+    {
+        #pragma omp section
+        generateKnightMoves(board, side, list);
 
-    generateKnightMoves(board, side, list);
-    generateKingMoves(board, side, list);
-    generatePawnMoves(board, side, list);
+        #pragma omp section
+        generateKingMoves(board, side, list);
 
-    generateBishopMoves(board, side, list);
-    generateRookMoves(board, side, list);
-    generateQueenMoves(board, side, list);
+        #pragma omp section
+        generatePawnMoves(board, side, list);
+
+        #pragma omp section
+        generateBishopMoves(board, side, list);
+
+        #pragma omp section
+        generateRookMoves(board, side, list);
+
+        #pragma omp section
+        generateQueenMoves(board, side, list);
+    }
 
     for (int i = 0; i < list.count; i++) {
         const Move &move = list.moves[i];
@@ -163,7 +177,7 @@ MoveList generateMoves(Board &board)
 
         if (copy.pieces[side][KING] == 0) continue;
         int kingSq = popLSB(copy.pieces[side][KING]);
-        if (!isSquareAttacked(kingSq, copy, oppositeside)) {
+        if (!isSquareAttacked(kingSq, copy, opp)) {
             list.addLegal(move);
         }
 
