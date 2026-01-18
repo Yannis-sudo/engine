@@ -10,6 +10,7 @@
 #include "../../global/include/makemove.h"
 #include <thread>
 #include <vector>
+#include "./castling.h"
 
 MoveList generateMoves(Board &board);
 

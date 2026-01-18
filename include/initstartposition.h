@@ -45,6 +45,13 @@ Board initStartPosition()
     // Status
     board.sideToMove =  WHITE;
     board.castlingRights = 1 | 1 | 1 | 1; // KQkq
+
+    // Castling
+    board.wks = true;
+    board.wqs = true;
+    board.bks = true;
+    board.bqs = true;
+
     board.en_passant_square = -1;
     board.halfmoveclock = 0;
     board.fullmoveNumber = 1;

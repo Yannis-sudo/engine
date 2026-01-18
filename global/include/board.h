@@ -50,6 +50,11 @@ enum GameResult
     DRAW_INSUFFICIENT_MATERIAL
 };
 
+constexpr int WHITE_KINGSIDE = 0b0001; // Rechte des weißen Königs zur kurzen Rochade
+constexpr int WHITE_QUEENSIDE = 0b0010; // Rechte des weißen Königs zur langen Rochade
+constexpr int BLACK_KINGSIDE = 0b0100; // Rechte des schwarzen Königs zur kurzen Rochade
+constexpr int BLACK_QUEENSIDE = 0b1000; // Rechte des schwarzen Königs zur langen Rochade
+
 
 struct HistoryEntry
 {
@@ -72,6 +77,12 @@ struct Board
     // Game Stage
     Color sideToMove;
     int castlingRights;
+
+    // Castling Rights
+    bool wks;
+    bool wqs;
+    bool bks;
+    bool bqs;
 
     int en_passant_square; // -1 if not possible
     int halfmoveclock;

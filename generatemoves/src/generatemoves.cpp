@@ -35,6 +35,9 @@ void generateKingMoves(const Board &board, Color side, MoveList &list) noexcept
             bool isCapture = (board.occupied[!side] & (1ULL << to)) != 0;
             list.add({from, to, KING, isCapture, false, false, false});
         }
+
+        // Castling
+        addCastlingMoves(board, list);
     }
 }
 
