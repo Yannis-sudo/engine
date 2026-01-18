@@ -35,7 +35,6 @@ void generateKingMoves(const Board &board, Color side, MoveList &list) noexcept
             bool isCapture = (board.occupied[!side] & (1ULL << to)) != 0;
             list.add({from, to, KING, isCapture, false, false, false});
         }
-        
     }
 }
 
@@ -49,10 +48,11 @@ void generateBishopMoves(const Board &board, Color side, MoveList &list) noexcep
         int from = popLSB(bishops);
         Bitboard attacks = getBishopAttacks(from, occ);
 
-        while (attacks) {
+        while (attacks)
+        {
             int to = popLSB(attacks);
             bool isCapture = (board.occupied[!side] & (1ULL << to)) != 0;
-            list.add({from, to , BISHOP, isCapture, false, false, false});
+            list.add({from, to, BISHOP, isCapture, false, false, false});
         }
     }
 }
@@ -68,10 +68,11 @@ void generateRookMoves(const Board &board, Color side, MoveList &list) noexcept
         Bitboard attacks = getRookAttacks(from, occ); // Lookup rook attacks
 
         // Quiet moves
-        while (attacks) {
+        while (attacks)
+        {
             int to = popLSB(attacks);
             bool isCapture = (board.occupied[!side] & (1ULL << to)) != 0;
-            list.add({from, to , ROOK, isCapture, false, false, false});
+            list.add({from, to, ROOK, isCapture, false, false, false});
         }
     }
 }
@@ -86,10 +87,11 @@ void generateQueenMoves(const Board &board, Color side, MoveList &list) noexcept
         int from = popLSB(queens);
         Bitboard attacks = getQueenAttacks(from, occ);
 
-        while (attacks) {
+        while (attacks)
+        {
             int to = popLSB(attacks);
             bool isCapture = (board.occupied[!side] & (1ULL << to)) != 0;
-            list.add({from, to , QUEEN, isCapture, false, false, false});
+            list.add({from, to, QUEEN, isCapture, false, false, false});
         }
     }
 }
@@ -99,59 +101,44 @@ MoveList generateMoves(Board &board)
     MoveList list;
 
     // local side variables
-    Color side = board.sideToMove;
-    Color opp = (Color)(side ^ 1);
+    const Color side = board.sideToMove;
+    const Color opp = (Color)(side ^ 1);
 
-    // Thread
-    #pragma omp parallel sections
+// Thread
+#pragma omp parallel sections
     {
-        #pragma omp section
+#pragma omp section
         generateKnightMoves(board, side, list);
 
-        #pragma omp section
+#pragma omp section
         generateKingMoves(board, side, list);
 
-        #pragma omp section
+#pragma omp section
         generatePawnMoves(board, side, list);
 
-        #pragma omp section
+#pragma omp section
         generateBishopMoves(board, side, list);
 
-        #pragma omp section
+#pragma omp section
         generateRookMoves(board, side, list);
 
-        #pragma omp section
+#pragma omp section
         generateQueenMoves(board, side, list);
     }
 
-    for (int i = 0; i < list.count; i++) {
+    for (int i = 0; i < list.count; i++)
+    {
         const Move &move = list.moves[i];
-        Board copy = board;
-        makemove(copy, move);
+        makemove(board, move);
 
-        if (copy.pieces[side][KING] == 0) continue;
-        int kingSq = popLSB(copy.pieces[side][KING]);
-        if (!isSquareAttacked(kingSq, copy, opp)) {
+        if (board.pieces[side][KING] == 0)
+            continue;
+        const int kingSq = popLSB(board.pieces[!side][KING]);
+        if (!isSquareAttacked(kingSq, board, opp))
+        {
             list.addLegal(move);
         }
-
+        undomove(board);
     }
     return list;
-}
-
-bool isSquareAttacked(int sq, const Board &board, Color attackingSide) {
-    MoveList list;
-    generateBishopMoves(board, attackingSide, list);
-    generateQueenMoves(board, attackingSide, list);
-    generateRookMoves(board, attackingSide, list);
-    generateKingMoves(board, attackingSide, list);
-    generateKnightMoves(board, attackingSide, list);
-    generatePawnMoves(board, attackingSide, list);
-
-    for (int i = 0; i < list.count; i++) {
-        if (list.moves[i].to == sq) {
-            return true;
-        }
-    }
-    return false;
 }

@@ -34,7 +34,7 @@ bool isCheck(const Board &board, Color side)
     Bitboard kingBB = board.pieces[side][KING];
     int kingSq = __builtin_ctzll(kingBB);
 
-    // Knigt
+    // Knight
     if (knightAttacks[kingSq] & board.pieces[enemy][KNIGHT])
         return true;
     if (kingAttacks[kingSq] & board.pieces[enemy][KING])
