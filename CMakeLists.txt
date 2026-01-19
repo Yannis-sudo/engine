@@ -21,15 +21,18 @@ add_executable(engine
     global/src/makemove.cpp
 
     # generatemoves
-    generatemoves/src/attacks.cpp
     generatemoves/src/generatemoves.cpp
     generatemoves/src/pawnattacks.cpp
-    generatemoves/src/masks.cpp
     generatemoves/src/isgameover.cpp
+    generatemoves/src/castling.cpp
 
     # evaluate
     evaluate/src/evaluate.cpp
     evaluate/src/positioneval.cpp
+
+    # tables
+    tables/src/attacks.cpp
+    tables/src/masks.cpp
 )
 
 
@@ -39,6 +42,7 @@ target_include_directories(engine PRIVATE
     ${PROJECT_SOURCE_DIR}/global/include
     ${PROJECT_SOURCE_DIR}/generatemoves/include
     ${PROJECT_SOURCE_DIR}/evaluate/include
+    ${PROJECT_SOURCE_DIR}/tables/include
 )
 
 find_package(Threads)

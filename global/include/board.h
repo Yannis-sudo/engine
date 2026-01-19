@@ -3,7 +3,7 @@
 
 #include "./bitboard.h"
 
-
+// Data sructs
 enum Color
 {
     WHITE = 0,
@@ -41,13 +41,13 @@ enum GameStage
 
 enum GameResult
 {
-    GAME_ONGOING,
-    WHITE_WINS,
-    BLACK_WINS,
-    DRAW_STALEMATE,
-    DRAW_50_MOVES,
-    DRAW_REPETITION,
-    DRAW_INSUFFICIENT_MATERIAL
+    GAME_ONGOING = 0,
+    WHITE_WINS = 1,
+    BLACK_WINS = 2,
+    DRAW_STALEMATE = 3,
+    DRAW_50_MOVES = 4,
+    DRAW_REPETITION = 5,
+    DRAW_INSUFFICIENT_MATERIAL = 6
 };
 
 constexpr int WHITE_KINGSIDE = 0b0001; // Rechte des weißen Königs zur kurzen Rochade

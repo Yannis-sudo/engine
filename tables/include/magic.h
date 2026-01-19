@@ -1,3 +1,18 @@
+// This file contains the precomputed magic numbers used for the magic bitboard
+// attack generation of rooks and bishops. Each of the 64 entries in the
+// rookMagics and bishopMagics arrays corresponds to a specific square on the
+// chessboard and provides a carefully chosen magic multiplier that allows fast
+// lookup of sliding piece attacks using bitwise operations.
+//
+// These magic numbers are the result of an offline search process and are
+// designed to produce perfect hashing for all relevant blocker configurations.
+// By using these constants, the engine can compute rook and bishop attack
+// bitboards in O(1) time during move generation, significantly improving the
+// performance of the search algorithm.
+//
+// In short: this file provides the core magic multipliers that enable efficient
+// sliding piece attack tables for the engine's bitboard-based move generator.
+
 #pragma once
 
 #include "../../global/include/bitboard.h"

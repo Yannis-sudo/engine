@@ -1,6 +1,6 @@
 #include "../include/attacks.h"
 
-// Global Arrays
+// Global Arrays (definded in ../include/attacks.h)
 Bitboard knightAttacks[64];
 Bitboard kingAttacks[64];
 
@@ -10,7 +10,7 @@ Bitboard rookAttacks[64][4096];
 Bitboard pawnAttacksWhite[64];
 Bitboard pawnAttacksBlack[64];
 
-void initAttackTable()
+void initAttackTable() // Init the attack table for the knights and the king
 {
     // Knight
     for (int sq = 0; sq < 64; ++sq)
@@ -27,7 +27,8 @@ void initAttackTable()
             {+1, +2},
             {+1, -2},
             {-1, +2},
-            {-1, -2}};
+            {-1, -2}
+        };
 
         for (auto &m : knightMoves)
         {
@@ -68,7 +69,7 @@ void initAttackTable()
     }
 }
 
-Bitboard maskOccupancy(int index, Bitboard mask)
+Bitboard maskOccupancy(int index, Bitboard mask) // Generate occupancy bitboard
 {
     Bitboard occ = 0ULL;
     int bits = countBits(mask);
@@ -81,33 +82,33 @@ Bitboard maskOccupancy(int index, Bitboard mask)
     return occ;
 }
 
-void initBishopRookTables()
+void initBishopRookTables() // Init the attack tables for the rook and the bishop
 {
     for (int sq = 0; sq < 64; ++sq)
     {
-        Bitboard mask = bishopMasks[sq];
+        Bitboard mask = bishopMasks[sq]; // from masks.h
         int bits = countBits(mask);
         int variations = 1 << bits;
         for (int i = 0; i < variations; ++i)
         {
             Bitboard occ = maskOccupancy(i, mask);
-            int index = (occ * bishopMagics[sq]) >> (64 - bishopRelevantBits[sq]);
+            int index = (occ * bishopMagics[sq]) >> (64 - bishopRelevantBits[sq]); // from magic.h & generatemovesvar.h
             bishopAttacks[sq][index] = computeBishopTable(sq, occ);
         }
 
-        mask = rookMasks[sq];
+        mask = rookMasks[sq]; // from masks.h
         int bits2 = countBits(mask);
         int variations2 = 1 << bits2;
         for (int i = 0; i < variations2; ++i)
         {
             Bitboard occ = maskOccupancy(i, mask);
-            int index = (occ * rookMagics[sq]) >> (64 - rookRelevantBits[sq]);
+            int index = (occ * rookMagics[sq]) >> (64 - rookRelevantBits[sq]); // from magic.h & generatemovesvar.h
             rookAttacks[sq][index] = computeRookTable(sq, occ);
         }
     }
 }
 
-// Compute Tables
+// Compute Tables (used in initBishopRookTables() in this file)
 Bitboard computeBishopTable(int sq, Bitboard occ)
 {
     Bitboard attacks = 0ULL;
@@ -145,7 +146,6 @@ Bitboard computeBishopTable(int sq, Bitboard occ)
 
     return attacks;
 }
-
 Bitboard computeRookTable(int sq, Bitboard occ)
 {
     Bitboard attacks = 0ULL;
@@ -183,11 +183,11 @@ Bitboard computeRookTable(int sq, Bitboard occ)
     return attacks;
 }
 
-void initPawnAttacks()
+void initPawnAttacks() // Init the pawn attacks tables
 {
     for (int sq = 0; sq < 64; ++sq)
     {
-        pawnAttacksWhite[sq] == 0ULL;
+        pawnAttacksWhite[sq] = 0ULL;
         pawnAttacksBlack[sq] = 0ULL;
 
         int rank = sq / 8;

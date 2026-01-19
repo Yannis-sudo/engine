@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../generatemoves/include/masks.h"
+#include "../../tables/include/masks.h"
 
 // Relevant Bits
 extern int bishopRelevantBits[64];
