@@ -83,10 +83,10 @@ Board parse_fen(const std::string& fen) {
     }
 
     // 5. Castling rights
-    b.whiteCanCastleKingside  = castling.find('K') != std::string::npos;
-    b.whiteCanCastleQueenside = castling.find('Q') != std::string::npos;
-    b.blackCanCastleKingside  = castling.find('k') != std::string::npos;
-    b.blackCanCastleQueenside = castling.find('q') != std::string::npos;
+    b.wks  = castling.find('K') != std::string::npos;
+    b.wqs = castling.find('Q') != std::string::npos;
+    b.bks  = castling.find('k') != std::string::npos;
+    b.bqs = castling.find('q') != std::string::npos;
 
     // 6. En passant square
     if (enpassant == "-") {
