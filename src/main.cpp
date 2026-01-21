@@ -3,9 +3,9 @@
 #include "../generatemoves/include/generatemoves.h"
 #include <limits>
 
-#include "../generatemoves/include/attacks.h"
-#include "../generatemoves/include/masks.h"
-#include "../generatemoves/include/lookup.h"
+#include "../tables/include/attacks.h"
+#include "../tables/include/masks.h"
+#include "../tables/include/lookup.h"
 #include "../global/include/generatemovesvar.h"
 #include "../include/minimax.h"
 #include "../include/bestmove.h"

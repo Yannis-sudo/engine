@@ -2,6 +2,8 @@
 #define BITBOARD_H
 
 #include "./bitboard.h"
+#include "../../tables/include/attacks.h"
+#include "../../tables/include/lookup.h"
 
 // Data sructs
 enum Color
@@ -100,5 +102,8 @@ struct Board
         return (rank - 1) * 8 + (file - 'a');
     }
 };
+
+// Hilfsfunktionen
+bool isSquareAttacked(const Board &board, const Color attackingside, const int sq) noexcept;
 
 #endif

@@ -38,3 +38,36 @@ void Board::printBoard() {
     std::cout << "  a b c d e f g h\n"; // Spaltenbeschriftung
 }
 
+bool isSquareAttacked(const Board &board, const Color attackingside, const int sq) noexcept {
+    // pawn
+    if (attackingside == WHITE) {
+        if (pawnAttacksWhite[sq] & board.pieces[WHITE][PAWN]) {
+            return true; // White pawn
+        }
+    } else {
+        if (pawnAttacksBlack[sq] & board.pieces[BLACK][PAWN]) {
+            return true; // black pawn
+        }
+    }
+
+    // knight
+    if (knightAttacks[sq] & board.pieces[attackingside][KNIGHT]) {
+        return true;
+    }
+    // king
+    if (kingAttacks[sq] & board.pieces[attackingside][KING]) {
+        return true;
+    }
+
+    // bishop / queen
+    if (getBishopAttacks(sq, board.occupiedAll) & (board.pieces[attackingside][BISHOP] | board.pieces[attackingside][QUEEN])) {
+        return true;
+    }
+
+    // rook / queen
+    if (getRookAttacks(sq, board.occupiedAll) & (board.pieces[attackingside][ROOK] | board.pieces[attackingside][QUEEN])) {
+        return true;
+    }
+
+    return false;
+}

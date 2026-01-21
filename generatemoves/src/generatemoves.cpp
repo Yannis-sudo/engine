@@ -137,7 +137,7 @@ MoveList generateMoves(Board &board)
         if (board.pieces[side][KING] == 0)
             continue;
         const int kingSq = popLSB(board.pieces[!side][KING]);
-        if (!isSquareAttacked(kingSq, board, opp))
+        if (!isSquareAttacked(board, opp, kingSq))
         {
             list.addLegal(move);
         }
