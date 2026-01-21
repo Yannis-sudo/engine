@@ -3,6 +3,7 @@
 const int MATE = 30000;
 
 int negamax(Board &board, int depth, int alpha, int beta) {
+    std::cout << "Negamax";
 
     // 1. Game Over prüfen
     GameResult result = isGameOver(board);

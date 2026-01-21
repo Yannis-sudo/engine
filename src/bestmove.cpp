@@ -21,14 +21,12 @@ std::string bestmove(Board &board, bool maximizing, int depth)
 
         Board copy = board;
         makemove(copy, move);
-
         int eval = negamax(
             copy,
             depth,
             -1000000,
             1000000
         );
-
         if (maximizing)
         {
             if (bestMove.isNull || eval > bestEval)

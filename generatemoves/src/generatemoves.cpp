@@ -99,6 +99,7 @@ void generateQueenMoves(const Board &board, Color side, MoveList &list) noexcept
     }
 }
 
+// --- Ersetze die parallele Sektion durch sequentielle Aufrufe ---
 MoveList generateMoves(Board &board)
 {
     MoveList list;
@@ -107,36 +108,27 @@ MoveList generateMoves(Board &board)
     const Color side = board.sideToMove;
     const Color opp = (Color)(side ^ 1);
 
-// Thread
-#pragma omp parallel sections
-    {
-#pragma omp section
-        generateKnightMoves(board, side, list);
-
-#pragma omp section
-        generateKingMoves(board, side, list);
-
-#pragma omp section
-        generatePawnMoves(board, side, list);
-
-#pragma omp section
-        generateBishopMoves(board, side, list);
-
-#pragma omp section
-        generateRookMoves(board, side, list);
-
-#pragma omp section
-        generateQueenMoves(board, side, list);
-    }
+    // Sequentielle Erzeugung (kein Data-Race)
+    generateKnightMoves(board, side, list);
+    generateKingMoves(board, side, list);
+    generatePawnMoves(board, side, list);
+    generateBishopMoves(board, side, list);
+    generateRookMoves(board, side, list);
+    generateQueenMoves(board, side, list);
 
     for (int i = 0; i < list.count; i++)
     {
         const Move &move = list.moves[i];
         makemove(board, move);
 
-        if (board.pieces[side][KING] == 0)
+        // Prüfe, ob der König noch existiert (falls eigener König geschlagen wurde -> illegal)
+        if (board.pieces[side][KING] == 0) {
+            undomove(board);
             continue;
-        const int kingSq = popLSB(board.pieces[!side][KING]);
+        }
+
+        // Bestimme Königsfeld desziehenden Seite und prüfe, ob er angegriffen wird
+        const int kingSq = popLSB(board.pieces[side][KING]);
         if (!isSquareAttacked(board, opp, kingSq))
         {
             list.addLegal(move);
