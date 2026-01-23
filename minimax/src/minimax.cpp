@@ -2,6 +2,8 @@
 
 int minimax(Board board, const int depht, int alpha, int beta, const bool maximizing)
 {
+    const uint64_t key = board.hash; //
+
     if (depht == 0)
     {
         return evaluate(board);

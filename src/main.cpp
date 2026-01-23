@@ -10,6 +10,7 @@
 #include "../minimax/include/minimax.h"
 #include "../include/bestmove.h"
 #include "../evaluate/include/ptstables.h"
+#include "../tables/include/zobrist.h"
 #include <string>
 #include <sstream>
 
@@ -134,6 +135,7 @@ Board parse_fen(const std::string &fen)
 
     // 7. Occupancy aktualisieren
     b.updateOccupancy();
+    b.zobristKey = computeZobrist(b);
 
     return b;
 }

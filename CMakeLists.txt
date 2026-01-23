@@ -11,7 +11,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(engine
     # main dictonary
     src/bestmove.cpp
-    src/minimax.cpp
     src/main.cpp
 
     # global
@@ -33,6 +32,10 @@ add_executable(engine
     # tables
     tables/src/attacks.cpp
     tables/src/masks.cpp
+
+    # minimax
+    minimax/src/minimax.cpp
+    minimax/src/qsearch.cpp
 )
 
 
@@ -43,6 +46,7 @@ target_include_directories(engine PRIVATE
     ${PROJECT_SOURCE_DIR}/generatemoves/include
     ${PROJECT_SOURCE_DIR}/evaluate/include
     ${PROJECT_SOURCE_DIR}/tables/include
+    ${PROJECT_SOURCE_DIR}/minimax/include
 )
 
 find_package(Threads)
