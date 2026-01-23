@@ -32,6 +32,7 @@ add_executable(engine
     # tables
     tables/src/attacks.cpp
     tables/src/masks.cpp
+    tables/src/zobrist.cpp
 
     # minimax
     minimax/src/minimax.cpp

@@ -3,146 +3,172 @@
 // Führt einen Zug auf dem Board aus
 void makemove(Board &board, const Move &move)
 {
-    Color side = board.sideToMove;
+    Color side  = board.sideToMove;
     Color enemy = (side == WHITE ? BLACK : WHITE);
 
-    const int from = move.from;
-    const int to = move.to;
-    const int piece = move.piece;
+    int from  = move.from;
+    int to    = move.to;
+    int piece = move.piece;
 
-    // Save history
+    // --- Save history for undo ---
     HistoryEntry &h = board.history[board.historySize++];
-    h.zobristKey = board.zobristKey;
-    h.castlingRights = board.castlingRights;
+    h.zobristKey      = board.zobristKey;
+    h.castlingRights  = board.castlingRights;
     h.enPassantSquare = board.en_passant_square;
-    h.halfmoveClock = board.halfmoveclock;
-    h.move = move;
-    h.capturedPiece = -1;
+    h.halfmoveClock   = board.halfmoveclock;
+    h.move            = move;
+    h.capturedPiece   = -1;
 
-    // Half move counter
+    // --- Update halfmove clock ---
     if (piece == PAWN || move.captured)
         board.halfmoveclock = 0;
     else
         board.halfmoveclock++;
 
-    // Delete en passant
+    // --- Remove old en-passant hash ---
+    if (board.en_passant_square != -1)
+        board.zobristKey ^= zobristEnPassant[board.en_passant_square];
+
     board.en_passant_square = -1;
 
-    // Remove piece from source square
+    // --- Remove piece from source square (hash + bitboard) ---
     board.pieces[side][piece] &= ~(1ULL << from);
+    board.zobristKey ^= zobristPiece[side][piece][from];
 
-    // Capture
+    // --- Handle captures ---
     if (move.captured)
     {
         if (move.en_passant)
         {
-            const int capSq = (side == WHITE ? to - 8 : to + 8);
+            int capSq = (side == WHITE ? to - 8 : to + 8);
             board.pieces[enemy][PAWN] &= ~(1ULL << capSq);
+            board.zobristKey ^= zobristPiece[enemy][PAWN][capSq];
             h.capturedPiece = PAWN;
         }
         else
         {
-            const int capturedType = getPieceTypeOnSquare(board, to);
+            int capturedType = getPieceTypeOnSquare(board, to);
             board.pieces[enemy][capturedType] &= ~(1ULL << to);
+            board.zobristKey ^= zobristPiece[enemy][capturedType][to];
             h.capturedPiece = capturedType;
         }
     }
 
-    // Promotion
+    // --- Promotion or normal move ---
     if (move.promotion)
     {
         board.pieces[side][move.promoteTo] |= (1ULL << to);
+        board.zobristKey ^= zobristPiece[side][move.promoteTo][to];
     }
     else
     {
         board.pieces[side][piece] |= (1ULL << to);
+        board.zobristKey ^= zobristPiece[side][piece][to];
     }
 
-    // Catling
+    // --- Castling rook movement ---
     if (move.castling)
     {
         if (side == WHITE)
         {
-            if (to == 6)
+            if (to == 6) // White king-side
             {
                 board.pieces[WHITE][ROOK] &= ~(1ULL << 7);
-                board.pieces[WHITE][ROOK] |= (1ULL << 5);
+                board.pieces[WHITE][ROOK] |=  (1ULL << 5);
+
+                board.zobristKey ^= zobristPiece[WHITE][ROOK][7];
+                board.zobristKey ^= zobristPiece[WHITE][ROOK][5];
             }
-            else if (to == 2)
+            else if (to == 2) // White queen-side
             {
                 board.pieces[WHITE][ROOK] &= ~(1ULL << 0);
-                board.pieces[WHITE][ROOK] |= (1ULL << 3);
+                board.pieces[WHITE][ROOK] |=  (1ULL << 3);
+
+                board.zobristKey ^= zobristPiece[WHITE][ROOK][0];
+                board.zobristKey ^= zobristPiece[WHITE][ROOK][3];
             }
         }
         else
         {
-            if (to == 62)
+            if (to == 62) // Black king-side
             {
                 board.pieces[BLACK][ROOK] &= ~(1ULL << 63);
-                board.pieces[BLACK][ROOK] |= (1ULL << 61);
+                board.pieces[BLACK][ROOK] |=  (1ULL << 61);
+
+                board.zobristKey ^= zobristPiece[BLACK][ROOK][63];
+                board.zobristKey ^= zobristPiece[BLACK][ROOK][61];
             }
-            else if (to == 58)
+            else if (to == 58) // Black queen-side
             {
                 board.pieces[BLACK][ROOK] &= ~(1ULL << 56);
-                board.pieces[BLACK][ROOK] |= (1ULL << 59);
+                board.pieces[BLACK][ROOK] |=  (1ULL << 59);
+
+                board.zobristKey ^= zobristPiece[BLACK][ROOK][56];
+                board.zobristKey ^= zobristPiece[BLACK][ROOK][59];
             }
         }
     }
 
-    // Set en passant
+    // --- Set new en-passant square (if double pawn push) ---
     if (piece == PAWN)
     {
         if (side == WHITE && from + 16 == to)
-        {
             board.en_passant_square = from + 8;
-        }
         else if (side == BLACK && from - 16 == to)
-        {
             board.en_passant_square = from - 8;
-        }
+
+        if (board.en_passant_square != -1)
+            board.zobristKey ^= zobristEnPassant[board.en_passant_square];
     }
 
-    // switch sides
+    // --- Update castling rights (hash included) ---
+    board.zobristKey ^= zobristCastling[board.castlingRights];
+    updateCastlingRights(board, move);
+    board.zobristKey ^= zobristCastling[board.castlingRights];
+
+    // --- Switch side to move ---
     board.sideToMove = enemy;
-    // Update occupancy
+    board.zobristKey ^= zobristSide;
+
+    // --- Update occupancy bitboards ---
     board.updateOccupancy();
 }
+
 
 void undomove(Board &board)
 {
     HistoryEntry &h = board.history[--board.historySize];
 
-    const Move move = h.move;
-    const Color enemy = board.sideToMove;
-    const Color side = (enemy == WHITE ? BLACK : WHITE);
+    Move move = h.move;
+    Color enemy = board.sideToMove;
+    Color side  = (enemy == WHITE ? BLACK : WHITE);
 
-    const int from = move.from;
-    const int to = move.to;
-    const int piece = move.piece;
+    int from  = move.from;
+    int to    = move.to;
+    int piece = move.piece;
 
-    // Reswitc side
-    board.sideToMove = side;
-    board.zobristKey = h.zobristKey;
-    board.castlingRights = h.castlingRights;
+    // --- Restore simple board state ---
+    board.sideToMove       = side;
+    board.zobristKey       = h.zobristKey;
+    board.castlingRights   = h.castlingRights;
     board.en_passant_square = h.enPassantSquare;
-    board.halfmoveclock = h.halfmoveClock;
+    board.halfmoveclock    = h.halfmoveClock;
 
+    // --- Remove piece from target square ---
     if (move.promotion)
-    {
         board.pieces[side][move.promoteTo] &= ~(1ULL << to);
-    }
     else
-    {
         board.pieces[side][piece] &= ~(1ULL << to);
-    }
 
+    // --- Put piece back on source square ---
     board.pieces[side][piece] |= (1ULL << from);
 
+    // --- Restore captured piece ---
     if (h.capturedPiece != -1)
     {
         if (move.en_passant)
         {
-            const int capSq = (side == WHITE ? to - 8 : to + 8);
+            int capSq = (side == WHITE ? to - 8 : to + 8);
             board.pieces[enemy][PAWN] |= (1ULL << capSq);
         }
         else
@@ -151,7 +177,7 @@ void undomove(Board &board)
         }
     }
 
-    // Undo catling
+    // --- Undo castling rook movement ---
     if (move.castling)
     {
         if (side == WHITE)
@@ -159,12 +185,12 @@ void undomove(Board &board)
             if (to == 6)
             {
                 board.pieces[WHITE][ROOK] &= ~(1ULL << 5);
-                board.pieces[WHITE][ROOK] |= (1ULL << 7);
+                board.pieces[WHITE][ROOK] |=  (1ULL << 7);
             }
             else if (to == 2)
             {
                 board.pieces[WHITE][ROOK] &= ~(1ULL << 3);
-                board.pieces[WHITE][ROOK] |= (1ULL << 0);
+                board.pieces[WHITE][ROOK] |=  (1ULL << 0);
             }
         }
         else
@@ -172,17 +198,20 @@ void undomove(Board &board)
             if (to == 62)
             {
                 board.pieces[BLACK][ROOK] &= ~(1ULL << 61);
-                board.pieces[BLACK][ROOK] |= (1ULL << 63);
+                board.pieces[BLACK][ROOK] |=  (1ULL << 63);
             }
             else if (to == 58)
             {
                 board.pieces[BLACK][ROOK] &= ~(1ULL << 59);
-                board.pieces[BLACK][ROOK] |= (1ULL << 56);
+                board.pieces[BLACK][ROOK] |=  (1ULL << 56);
             }
         }
     }
+
+    // --- Recalculate occupancy ---
     board.updateOccupancy();
 }
+
 
 int getPieceTypeOnSquare(const Board &board, int sq)
 {
