@@ -172,7 +172,7 @@ void uci_loop()
         {
             // simple handling: benutze den gesetzten depht (oder standard) und berechne bestmove
             auto best = bestmove(currentBoard, maximizing, depht);
-            cout << "bestmove " << best << "\n";
+            cout << best << "\n";
         }
         else if (line.rfind("bestmove", 0) == 0)
         {

@@ -95,4 +95,5 @@ int minimax(Board &board, const int depht, int alpha, int beta)
         entry.flag = TT_BETA;
     else
         entry.flag = TT_EXACT;
+    return bestScore;
 }

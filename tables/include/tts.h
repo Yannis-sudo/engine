@@ -24,7 +24,7 @@ struct TTEntry
 };
 
 constexpr int TT_SIZE = 1 << 20; // 1M entries
-TTEntry TT[TT_SIZE];
+extern TTEntry TT[TT_SIZE];
 
 inline TTEntry &probeTT(uint64_t key)
 {
