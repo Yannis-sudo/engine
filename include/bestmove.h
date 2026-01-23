@@ -3,7 +3,7 @@
 
 #include "../global/include/bitboard.h"
 #include "../global/include/board.h"
-#include "./minimax.h"
+#include "../minimax/include/minimax.h"
 #include "../generatemoves/include/generatemoves.h"
 #include "../global/include/makemove.h"
 

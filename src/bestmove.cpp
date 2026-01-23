@@ -86,5 +86,5 @@ std::string bestmove(Board &board, bool maximizing, int depth)
         uciMove += static_cast<char>(std::tolower(static_cast<unsigned char>(promoChar)));
     }
 
-    return "bestmove " + uciMove;
+    return uciMove;
 }

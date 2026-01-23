@@ -15,3 +15,4 @@
 #include "./castling.h"
 
 MoveList generateMoves(Board &board);
+MoveList generateCaptures(Board &board); // For Q-Search. No legal Check!

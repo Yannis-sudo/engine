@@ -37,9 +37,11 @@ bool isCheck(const Board &board, Color side)
     // Knight
     if (knightAttacks[kingSq] & board.pieces[enemy][KNIGHT])
         return true;
+    // King
     if (kingAttacks[kingSq] & board.pieces[enemy][KING])
         return true;
 
+    // Pawn
     if (side == WHITE)
     {
         if (pawnAttacksBlack[kingSq] & board.pieces[enemy][PAWN])
@@ -50,12 +52,13 @@ bool isCheck(const Board &board, Color side)
         if (pawnAttacksWhite[kingSq] & board.pieces[enemy][PAWN])
             return true;
     }
-
+    // Bishop & Queen
     Bitboard bishopAtt = getBishopAttacks(kingSq, board.occupiedAll);
     if (bishopAtt & (board.pieces[enemy][BISHOP] | board.pieces[enemy][QUEEN]))
     {
         return true;
     }
+    // Rook & Queen
     Bitboard rookAtt = getRookAttacks(kingSq, board.occupiedAll);
     if (rookAtt & (board.pieces[enemy][ROOK] | board.pieces[enemy][QUEEN]))
         return true;

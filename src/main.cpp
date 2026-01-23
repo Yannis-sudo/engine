@@ -7,7 +7,7 @@
 #include "../tables/include/masks.h"
 #include "../tables/include/lookup.h"
 #include "../global/include/generatemovesvar.h"
-#include "../include/minimax.h"
+#include "../minimax/include/minimax.h"
 #include "../include/bestmove.h"
 #include "../evaluate/include/ptstables.h"
 #include <string>
@@ -179,7 +179,7 @@ void uci_loop()
         }
         else if (line.rfind("besteval", 0) == 0)
         {
-            int eval = negamax(currentBoard, depht, -1000000, 1000000);
+            int eval = minimax(currentBoard, depht, -1000000, 1000000, true);
             cout << "besteval " << eval << endl;
         }
         else if (line == "quit")
