@@ -1,65 +1,98 @@
 #include "../include/minimax.h"
 
-int minimax(Board board, const int depht, int alpha, int beta, const bool maximizing)
+int minimax(Board &board, const int depht, int alpha, int beta)
 {
-    const uint64_t key = board.hash; //
+    const uint64_t key = board.zobristKey;
+    TTEntry &entry = TT[key & (TT_SIZE - 1)];
 
+    const int originalAlpha = alpha;
+
+    // TT
+    if (entry.key == key && entry.depth >= depht)
+    {
+        if (entry.flag == TT_EXACT)
+        {
+            return entry.score;
+        }
+        if (entry.flag == TT_ALPHA && entry.score <= alpha)
+        {
+            return entry.score;
+        }
+        if (entry.flag == TT_BETA && entry.score >= beta)
+        {
+            return entry.score;
+        }
+    }
+
+    // Depht == 0 -> Q-Search
     if (depht == 0)
     {
-        return evaluate(board);
+        return quiescence(board, alpha, beta);
     }
-    const GameResult result = isGameOver(board);
+
+    // Game over check
+    GameResult result = isGameOver(board);
     if (result != GAME_ONGOING)
     {
-        if (result == DRAW_50_MOVES || DRAW_INSUFFICIENT_MATERIAL || DRAW_REPETITION || DRAW_STALEMATE)
-        {
-            return 0;
-        }
-        else if (result == WHITE_WINS)
-        {
+        if (result == WHITE_WINS)
             return 1000000;
-        }
-        else if (result == BLACK_WINS)
-        {
+        if (result == BLACK_WINS)
             return -1000000;
-        }
+        return 0;
     }
 
+    // Generate Moves
     MoveList moves = generateMoves(board);
-    if (maximizing) {
-        int best = -10000000;
-        for (int i = 0; i < moves.count2; ++i) {
-            makemove(board, moves.legalMoves[i]);
-            int score = minimax(board, depht - 1, alpha, beta, false);
-            undomove(board);
-
-            if (score > best) {
-                best = score;
-            }
-            if (best > alpha) {
-                alpha = best;
-            }
-            if (alpha >= beta) {
-                break;
-            }
-        }
-        return best;
-    } else {
-        int best = 10000000;
-        for (int i = 0; i < moves.count2; ++i) {
-            makemove(board, moves.legalMoves[i]);
-            int score = minimax(board, depht - 1, alpha, beta, true);
-            undomove(board);
-            if (score < best) {
-                best = score;
-            }
-            if (best < beta) {
-                beta = best;
-            }
-            if (alpha >= beta) {
-                break;
-            }
-        }
-        return best;
+    if (moves.count == 0)
+    {
+        return 0; // Stalemate or Error
     }
+
+    // Move Order
+    if (entry.key == key && entry.bestMove.from != -1)
+    {
+        reorderMovesFirst(moves, entry.bestMove);
+    }
+
+    int bestScore = -10000000;
+    Move bestMove = Move(); // default: NO_MOVE
+
+    for (int i = 0; i < moves.count2; i++)
+    {
+        Move m = moves.legalMoves[i];
+
+        makemove(board, m);
+
+        int score = -minimax(board, depht - 1, -beta, -alpha);
+
+        undomove(board);
+
+        if (score > bestScore)
+        {
+            bestScore = score;
+            bestMove = m;
+        }
+
+        if (score > alpha)
+        {
+            alpha = score;
+            if (alpha >= beta)
+            {
+                break;
+            }
+        }
+    }
+
+    // Store in TT
+    entry.key = key;
+    entry.score = bestScore;
+    entry.depth = depht;
+    entry.bestMove = bestMove;
+
+    if (bestScore <= originalAlpha)
+        entry.flag = TT_ALPHA;
+    else if (bestScore >= beta)
+        entry.flag = TT_BETA;
+    else
+        entry.flag = TT_EXACT;
 }

@@ -1,40 +1,47 @@
 #include "../include/qsearch.h"
 
-int quiescence(int alpha, int beta, Board &board) {
+int quiescence(Board &board, int alpha, int beta)
+{
     int standPat = evaluate(board);
 
-    if (standPat >= beta) {
+    if (standPat >= beta)
         return beta;
-    }
-    if (standPat > alpha) {
+
+    if (standPat > alpha)
         alpha = standPat;
-    }
 
-    // Generate only captures
     MoveList captures = generateCaptures(board);
-    const Color side = board.sideToMove;
-    const Color opp = (Color)(board.sideToMove ^ 1);
 
-    // Loop trough all capture moves
-    for (int i = 0; i < captures.count; i++) {
-        const Move m = captures.moves[i];
+    for (int i = 0; i < captures.count; i++)
+    {
+        Move m = captures.moves[i];
 
         makemove(board, m);
 
-        Bitboard kingBB = board.pieces[side][KING];
-        int kingSQ = popLSB(kingBB);
+        // side that made the move
+        Color us = (Color)(board.sideToMove ^ 1);
+        Color them = board.sideToMove;
 
-        if (!isSquareAttacked(board, opp, kingSQ)) {
-            int score = -quiescence(alpha, beta, board);
-            if (score >= beta) {
+        // find king square without modifying bitboard
+        Bitboard kingBB = board.pieces[us][KING];
+        int kingSq = bitScanForward(kingBB);
+
+        if (!isSquareAttacked(board, them, kingSq))
+        {
+            int score = -quiescence(board, -beta, -alpha);
+
+            if (score >= beta)
+            {
                 undomove(board);
                 return beta;
             }
-            if (score > alpha) {
+
+            if (score > alpha)
                 alpha = score;
-            }
         }
+
         undomove(board);
     }
+
     return alpha;
 }

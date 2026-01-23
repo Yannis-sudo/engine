@@ -104,11 +104,10 @@ MoveList generateMoves(Board &board)
 {
     MoveList list;
 
-    // local side variables
     const Color side = board.sideToMove;
-    const Color opp = (Color)(side ^ 1);
+    const Color opp  = (side == WHITE ? BLACK : WHITE);
 
-    // Sequentielle Erzeugung (kein Data-Race)
+    // Generate pseudo-legal moves for the side to move
     generateKnightMoves(board, side, list);
     generateKingMoves(board, side, list);
     generatePawnMoves(board, side, list);
@@ -116,28 +115,38 @@ MoveList generateMoves(Board &board)
     generateRookMoves(board, side, list);
     generateQueenMoves(board, side, list);
 
+    // Filter to legal moves
     for (int i = 0; i < list.count; i++)
     {
-        const Move &move = list.moves[i];
+        const Move move = list.moves[i];
+
         makemove(board, move);
 
-        // Prüfe, ob der König noch existiert (falls eigener König geschlagen wurde -> illegal)
-        if (board.pieces[side][KING] == 0) {
+        // side is the side that made the move
+        Bitboard kingBB = board.pieces[side][KING];
+
+        // if king disappeared, illegal move
+        if (kingBB == 0)
+        {
             undomove(board);
             continue;
         }
 
-        // Bestimme Königsfeld desziehenden Seite und prüfe, ob er angegriffen wird
-        Bitboard kingBB = board.pieces[side][KING];
-        const int kingSq = popLSB(kingBB);
+        // find king square without modifying bitboard
+        int kingSq = bitScanForward(kingBB);
+
+        // check if our king is in check after the move
         if (!isSquareAttacked(board, opp, kingSq))
         {
             list.addLegal(move);
         }
+
         undomove(board);
     }
+
     return list;
 }
+
 
 MoveList generateCaptures(Board &board) {
     MoveList list;

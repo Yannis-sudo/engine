@@ -181,7 +181,7 @@ void uci_loop()
         }
         else if (line.rfind("besteval", 0) == 0)
         {
-            int eval = minimax(currentBoard, depht, -1000000, 1000000, true);
+            int eval = minimax(currentBoard, depht, -1000000, 1000000);
             cout << "besteval " << eval << endl;
         }
         else if (line == "quit")
