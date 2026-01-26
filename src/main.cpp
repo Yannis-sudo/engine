@@ -25,7 +25,7 @@ Board parse_fen(const std::string &fen)
 {
     Board b;
 
-    // 1. Bitboards leeren
+    // Clear bitboards
     for (int c = 0; c < 2; c++)
         for (int p = 0; p < 6; p++)
             b.pieces[c][p] = 0ULL;
@@ -34,12 +34,12 @@ Board parse_fen(const std::string &fen)
     b.occupied[BLACK] = 0ULL;
     b.occupiedAll = 0ULL;
 
-    // 2. FEN in Teile splitten
+    // Split FEN
     std::istringstream ss(fen);
     std::string boardPart, side, castling, enpassant;
     ss >> boardPart >> side >> castling >> enpassant >> b.halfmoveclock >> b.fullmoveNumber;
 
-    // 3. Figuren setzen
+    // Parse board
     int rank = 7;
     int file = 0;
 
@@ -62,70 +62,36 @@ Board parse_fen(const std::string &fen)
 
         switch (c)
         {
-        case 'P':
-            b.pieces[WHITE][PAWN] |= 1ULL << sq;
-            break;
-        case 'N':
-            b.pieces[WHITE][KNIGHT] |= 1ULL << sq;
-            break;
-        case 'B':
-            b.pieces[WHITE][BISHOP] |= 1ULL << sq;
-            break;
-        case 'R':
-            b.pieces[WHITE][ROOK] |= 1ULL << sq;
-            break;
-        case 'Q':
-            b.pieces[WHITE][QUEEN] |= 1ULL << sq;
-            break;
-        case 'K':
-            b.pieces[WHITE][KING] |= 1ULL << sq;
-            break;
+            case 'P': b.pieces[WHITE][PAWN]   |= 1ULL << sq; break;
+            case 'N': b.pieces[WHITE][KNIGHT] |= 1ULL << sq; break;
+            case 'B': b.pieces[WHITE][BISHOP] |= 1ULL << sq; break;
+            case 'R': b.pieces[WHITE][ROOK]   |= 1ULL << sq; break;
+            case 'Q': b.pieces[WHITE][QUEEN]  |= 1ULL << sq; break;
+            case 'K': b.pieces[WHITE][KING]   |= 1ULL << sq; break;
 
-        case 'p':
-            b.pieces[BLACK][PAWN] |= 1ULL << sq;
-            break;
-        case 'n':
-            b.pieces[BLACK][KNIGHT] |= 1ULL << sq;
-            break;
-        case 'b':
-            b.pieces[BLACK][BISHOP] |= 1ULL << sq;
-            break;
-        case 'r':
-            b.pieces[BLACK][ROOK] |= 1ULL << sq;
-            break;
-        case 'q':
-            b.pieces[BLACK][QUEEN] |= 1ULL << sq;
-            break;
-        case 'k':
-            b.pieces[BLACK][KING] |= 1ULL << sq;
-            break;
+            case 'p': b.pieces[BLACK][PAWN]   |= 1ULL << sq; break;
+            case 'n': b.pieces[BLACK][KNIGHT] |= 1ULL << sq; break;
+            case 'b': b.pieces[BLACK][BISHOP] |= 1ULL << sq; break;
+            case 'r': b.pieces[BLACK][ROOK]   |= 1ULL << sq; break;
+            case 'q': b.pieces[BLACK][QUEEN]  |= 1ULL << sq; break;
+            case 'k': b.pieces[BLACK][KING]   |= 1ULL << sq; break;
         }
 
         file++;
     }
 
-    // 4. Side to move
+    // Side to move
     b.sideToMove = (side == "w" ? WHITE : BLACK);
-    if (side == "w")
-    {
-        maximizing = true;
-    }
-    else
-    {
-        maximizing = false;
-    }
 
-    // 5. Castling rights
+    // Castling rights
     b.wks = castling.find('K') != std::string::npos;
     b.wqs = castling.find('Q') != std::string::npos;
     b.bks = castling.find('k') != std::string::npos;
     b.bqs = castling.find('q') != std::string::npos;
 
-    // 6. En passant square
+    // En passant
     if (enpassant == "-")
-    {
         b.en_passant_square = -1;
-    }
     else
     {
         int file = enpassant[0] - 'a';
@@ -133,12 +99,15 @@ Board parse_fen(const std::string &fen)
         b.en_passant_square = rank * 8 + file;
     }
 
-    // 7. Occupancy aktualisieren
+    // Occupancy
     b.updateOccupancy();
+
+    // Zobrist
     b.zobristKey = computeZobrist(b);
 
     return b;
 }
+
 
 void uci_loop()
 {
@@ -170,19 +139,8 @@ void uci_loop()
         }
         else if (line.rfind("go", 0) == 0)
         {
-            // simple handling: benutze den gesetzten depht (oder standard) und berechne bestmove
             auto best = bestmove(currentBoard, maximizing, depht);
             cout << best << "\n";
-        }
-        else if (line.rfind("bestmove", 0) == 0)
-        {
-            auto best = bestmove(currentBoard, maximizing, depht);
-            cout << best << endl;
-        }
-        else if (line.rfind("besteval", 0) == 0)
-        {
-            int eval = minimax(currentBoard, depht, -1000000, 1000000);
-            cout << "besteval " << eval << endl;
         }
         else if (line == "quit")
         {

@@ -38,6 +38,6 @@ inline bool onBoard2d(int r, int c) {
     return r >= 0 && r < 8 && c >= 0 && c < 8;
 }
 
-inline bool bitScanForward(Bitboard b) {
+inline int bitScanForward(Bitboard b) {
     return __builtin_ctzll(b);
 }

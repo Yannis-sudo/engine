@@ -3,9 +3,9 @@
 #include <string>
 #include <cctype> // für std::tolower
 
-std::string bestmove(Board &board, bool maximizing, int depth)
+std::string bestmove(Board &board, bool maximizing, int maxDepth)
 {
-    MoveList possibleMoves = generateMoves(board);
+    MoveList rootMoves = generateMoves(board);
 
     Move bestMove;
     bestMove.isNull = true;
@@ -14,49 +14,66 @@ std::string bestmove(Board &board, bool maximizing, int depth)
         ? std::numeric_limits<int>::min()
         : std::numeric_limits<int>::max();
 
-    // Beste Variante per Minimax suchen
-    for (int i = 0; i < possibleMoves.count2; i++)
+    // Iterative Deepening
+    for (int depth = 1; depth <= maxDepth; depth++)
     {
-        Move move = possibleMoves.legalMoves[i];
+        Move currentBest;
+        currentBest.isNull = true;
 
-        Board copy = board;
-        makemove(copy, move);
-        int eval = minimax(
-            copy,
-            depth,
-            -1000000,
-            1000000
-        );
-        if (maximizing)
+        int currentBestEval = maximizing
+            ? std::numeric_limits<int>::min()
+            : std::numeric_limits<int>::max();
+
+        // Suche auf aktueller Tiefe
+        for (int i = 0; i < rootMoves.count2; i++)
         {
-            if (bestMove.isNull || eval > bestEval)
+            Move move = rootMoves.legalMoves[i];
+
+            Board copy = board;
+            makemove(copy, move);
+
+            int eval = minimax(copy, depth, -1000000, 1000000);
+
+            if (maximizing)
             {
-                bestEval = eval;
-                bestMove = move;
-                bestMove.isNull = false;
+                if (currentBest.isNull || eval > currentBestEval)
+                {
+                    currentBestEval = eval;
+                    currentBest = move;
+                    currentBest.isNull = false;
+                }
+            }
+            else
+            {
+                if (currentBest.isNull || eval < currentBestEval)
+                {
+                    currentBestEval = eval;
+                    currentBest = move;
+                    currentBest.isNull = false;
+                }
             }
         }
-        else
+
+        // Nach jeder Tiefe aktualisieren wir den global besten Zug
+        if (!currentBest.isNull)
         {
-            if (bestMove.isNull || eval < bestEval)
-            {
-                bestEval = eval;
-                bestMove = move;
-                bestMove.isNull = false;
-            }
+            bestMove = currentBest;
+            bestEval = currentBestEval;
         }
+
+        // Debug-Ausgabe (optional)
+        std::cout << "Depth " << depth
+                  << " bestEval=" << bestEval
+                  << " move=" << bestMove.from << bestMove.to
+                  << std::endl;
     }
 
     // Falls keine Züge vorhanden sind (Matt/Pat)
     if (bestMove.isNull)
-    {
-        return "bestmove 0000"; // UCI-„Nullzug“
-    }
+        return "bestmove 0000";
 
-    // UCI-Notation bauen: e2e4, e7e8q etc.
+    // UCI-Notation bauen
     char fileChars[8] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
-    char pieceTypesW[6] = {'P', 'N', 'B', 'R', 'Q', 'K'};
-    char pieceTypesB[6] = {'p', 'n', 'b', 'r', 'q', 'k'};
 
     int from_rank = bestMove.from / 8;
     int from_file = bestMove.from % 8;
@@ -65,26 +82,17 @@ std::string bestmove(Board &board, bool maximizing, int depth)
 
     std::string uciMove;
 
-    // from
     uciMove += fileChars[from_file];
-    uciMove += std::to_string(from_rank + 1); // +1 weil UCI 1–8 benutzt
-
-    // to
+    uciMove += std::to_string(from_rank + 1);
     uciMove += fileChars[to_file];
     uciMove += std::to_string(to_rank + 1);
 
-    // Promotion (z.B. e7e8q)
     if (bestMove.promotion)
     {
-        char promoChar;
-        if (maximizing)
-            promoChar = pieceTypesW[bestMove.promoteTo];
-        else
-            promoChar = pieceTypesB[bestMove.promoteTo];
-
-        // UCI will den Promotyp klein (q, r, b, n)
-        uciMove += static_cast<char>(std::tolower(static_cast<unsigned char>(promoChar)));
+        char promoChar = "nbrq"[bestMove.promoteTo];
+        uciMove += promoChar;
     }
 
-    return uciMove;
+    return "bestmove " + uciMove;
 }
+

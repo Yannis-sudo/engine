@@ -7,6 +7,7 @@ int minimax(Board &board, const int depht, int alpha, int beta)
 
     const int originalAlpha = alpha;
 
+    /*
     // TT
     if (entry.key == key && entry.depth >= depht)
     {
@@ -22,7 +23,7 @@ int minimax(Board &board, const int depht, int alpha, int beta)
         {
             return entry.score;
         }
-    }
+    } */
 
     // Depht == 0 -> Q-Search
     if (depht == 0)
@@ -84,6 +85,7 @@ int minimax(Board &board, const int depht, int alpha, int beta)
     }
 
     // Store in TT
+    /*
     entry.key = key;
     entry.score = bestScore;
     entry.depth = depht;
@@ -96,4 +98,6 @@ int minimax(Board &board, const int depht, int alpha, int beta)
     else
         entry.flag = TT_EXACT;
     return bestScore;
+    */
+   return bestScore;
 }

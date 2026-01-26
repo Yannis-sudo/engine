@@ -49,7 +49,7 @@ void generateBishopMoves(const Board &board, Color side, MoveList &list) noexcep
     while (bishops)
     {
         int from = popLSB(bishops);
-        Bitboard attacks = getBishopAttacks(from, occ);
+        Bitboard attacks = getBishopAttacks(from, occ) & ~board.occupied[side];
 
         while (attacks)
         {
@@ -68,7 +68,7 @@ void generateRookMoves(const Board &board, Color side, MoveList &list) noexcept
     while (rooks)
     {
         int from = popLSB(rooks);
-        Bitboard attacks = getRookAttacks(from, occ); // Lookup rook attacks
+        Bitboard attacks = getRookAttacks(from, occ) & ~board.occupied[side]; // Lookup rook attacks
 
         // Quiet moves
         while (attacks)
@@ -88,7 +88,7 @@ void generateQueenMoves(const Board &board, Color side, MoveList &list) noexcept
     while (queens)
     {
         int from = popLSB(queens);
-        Bitboard attacks = getQueenAttacks(from, occ);
+        Bitboard attacks = getQueenAttacks(from, occ) & ~board.occupied[side];
 
         while (attacks)
         {
@@ -99,15 +99,13 @@ void generateQueenMoves(const Board &board, Color side, MoveList &list) noexcept
     }
 }
 
-// --- Ersetze die parallele Sektion durch sequentielle Aufrufe ---
 MoveList generateMoves(Board &board)
 {
     MoveList list;
 
     const Color side = board.sideToMove;
-    const Color opp  = (side == WHITE ? BLACK : WHITE);
 
-    // Generate pseudo-legal moves for the side to move
+    // Generate pseudo-legal moves
     generateKnightMoves(board, side, list);
     generateKingMoves(board, side, list);
     generatePawnMoves(board, side, list);
@@ -115,37 +113,30 @@ MoveList generateMoves(Board &board)
     generateRookMoves(board, side, list);
     generateQueenMoves(board, side, list);
 
-    // Filter to legal moves
+    // Filter legal moves
     for (int i = 0; i < list.count; i++)
     {
-        const Move move = list.moves[i];
+        Move move = list.moves[i];
+
+        Color sideBefore = board.sideToMove;
 
         makemove(board, move);
 
-        // side is the side that made the move
-        Bitboard kingBB = board.pieces[side][KING];
+        Color us   = sideBefore;        // side that made the move
+        Color them = board.sideToMove;  // side to move now
 
-        // if king disappeared, illegal move
-        if (kingBB == 0)
-        {
-            undomove(board);
-            continue;
-        }
-
-        // find king square without modifying bitboard
+        Bitboard kingBB = board.pieces[us][KING];
         int kingSq = bitScanForward(kingBB);
 
-        // check if our king is in check after the move
-        if (!isSquareAttacked(board, opp, kingSq))
-        {
+        if (!isSquareAttacked(board, them, kingSq))
             list.addLegal(move);
-        }
 
         undomove(board);
     }
 
     return list;
 }
+
 
 
 MoveList generateCaptures(Board &board) {

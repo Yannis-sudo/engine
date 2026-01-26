@@ -36,6 +36,14 @@ void Board::printBoard() {
         std::cout << "\n";
     }
     std::cout << "  a b c d e f g h\n"; // Spaltenbeschriftung
+    if (sideToMove == WHITE) {
+        std::cout << "Side to move: White" << std::endl;
+    } else {
+        std::cout << "Side to move: Black" << std::endl;
+    }
+
+    std::cout << "Castling Rights: K:" << wks << " Q:" << wqs << " k:" << bks << " q:" << bqs << std::endl;
+    std::cout << "En Passant: " << en_passant_square << " Half Move Clock: " << halfmoveclock << std::endl;
 }
 
 bool isSquareAttacked(const Board &board, const Color attackingside, const int sq) noexcept {
