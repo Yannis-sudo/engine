@@ -49,11 +49,11 @@ void Board::printBoard() {
 bool isSquareAttacked(const Board &board, const Color attackingside, const int sq) noexcept {
     // pawn
     if (attackingside == WHITE) {
-        if (pawnAttacksWhite[sq] & board.pieces[WHITE][PAWN]) {
+        if (pawnAttacksBlack[sq] & board.pieces[WHITE][PAWN]) {
             return true; // White pawn
         }
     } else {
-        if (pawnAttacksBlack[sq] & board.pieces[BLACK][PAWN]) {
+        if (pawnAttacksWhite[sq] & board.pieces[BLACK][PAWN]) {
             return true; // black pawn
         }
     }
@@ -79,3 +79,15 @@ bool isSquareAttacked(const Board &board, const Color attackingside, const int s
 
     return false;
 }
+
+void printBitboard(Bitboard bb) {
+    for (int rank = 7; rank >= 0; rank--) {
+        for (int file = 0; file < 8; file++) {
+            int sq = rank * 8 + file;
+            std::cout << (((bb >> sq) & 1ULL) ? "1 " : ". ");
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n";
+}
+

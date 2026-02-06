@@ -4,6 +4,7 @@
 #include "./bitboard.h"
 #include "./movelist.h"
 #include "../../tables/include/zobrist.h"
+#include <iostream>
 
 void makemove(Board &board, const Move &move);
 void undomove(Board &board);

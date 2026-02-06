@@ -4,6 +4,7 @@
 #include "./bitboard.h"
 #include "../../tables/include/attacks.h"
 #include "../../tables/include/lookup.h"
+#include <iostream>
 
 // Data sructs
 enum Color
@@ -105,5 +106,6 @@ struct Board
 
 // Hilfsfunktionen
 bool isSquareAttacked(const Board &board, const Color attackingside, const int sq) noexcept;
+void printBitboard(Bitboard bb);
 
 #endif

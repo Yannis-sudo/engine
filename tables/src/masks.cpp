@@ -11,22 +11,19 @@ void initMasks()
         int file = sq % 8;
 
         Bitboard mask = 0ULL;
+
         for (int r = rank + 1, f = file + 1; r < 7 && f < 7; r++, f++)
-        {
             mask |= 1ULL << (r * 8 + f);
-        }
+
         for (int r = rank + 1, f = file - 1; r < 7 && f > 0; r++, f--)
-        {
             mask |= 1ULL << (r * 8 + f);
-        }
+
         for (int r = rank - 1, f = file + 1; r > 0 && f < 7; r--, f++)
-        {
             mask |= 1ULL << (r * 8 + f);
-        }
+
         for (int r = rank - 1, f = file - 1; r > 0 && f > 0; r--, f--)
-        {
             mask |= 1ULL << (r * 8 + f);
-        }
+
         bishopMasks[sq] = mask;
 
         mask = 0ULL;

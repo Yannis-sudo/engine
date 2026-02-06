@@ -7,12 +7,16 @@ std::string bestmove(Board &board, bool maximizing, int maxDepth)
 {
     MoveList rootMoves = generateMoves(board);
 
+    for (int i = 0; i < rootMoves.count2; i++) {
+        std::cout << rootMoves.legalMoves[i].from << "-" << rootMoves.legalMoves[i].to << std::endl;
+    }
+
     Move bestMove;
     bestMove.isNull = true;
 
     int bestEval = maximizing
-        ? std::numeric_limits<int>::min()
-        : std::numeric_limits<int>::max();
+                       ? std::numeric_limits<int>::min()
+                       : std::numeric_limits<int>::max();
 
     // Iterative Deepening
     for (int depth = 1; depth <= maxDepth; depth++)
@@ -21,8 +25,8 @@ std::string bestmove(Board &board, bool maximizing, int maxDepth)
         currentBest.isNull = true;
 
         int currentBestEval = maximizing
-            ? std::numeric_limits<int>::min()
-            : std::numeric_limits<int>::max();
+                                  ? std::numeric_limits<int>::min()
+                                  : std::numeric_limits<int>::max();
 
         // Suche auf aktueller Tiefe
         for (int i = 0; i < rootMoves.count2; i++)
@@ -77,8 +81,8 @@ std::string bestmove(Board &board, bool maximizing, int maxDepth)
 
     int from_rank = bestMove.from / 8;
     int from_file = bestMove.from % 8;
-    int to_rank   = bestMove.to   / 8;
-    int to_file   = bestMove.to   % 8;
+    int to_rank = bestMove.to / 8;
+    int to_file = bestMove.to % 8;
 
     std::string uciMove;
 
@@ -95,4 +99,3 @@ std::string bestmove(Board &board, bool maximizing, int maxDepth)
 
     return "bestmove " + uciMove;
 }
-

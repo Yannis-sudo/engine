@@ -4,7 +4,7 @@
 Bitboard knightAttacks[64];
 Bitboard kingAttacks[64];
 
-Bitboard bishopAttacks[64][512];
+Bitboard bishopAttacks[64][1024];
 Bitboard rookAttacks[64][4096];
 
 Bitboard pawnAttacksWhite[64];
@@ -27,8 +27,7 @@ void initAttackTable() // Init the attack table for the knights and the king
             {+1, +2},
             {+1, -2},
             {-1, +2},
-            {-1, -2}
-        };
+            {-1, -2}};
 
         for (auto &m : knightMoves)
         {
@@ -69,41 +68,53 @@ void initAttackTable() // Init the attack table for the knights and the king
     }
 }
 
-Bitboard maskOccupancy(int index, Bitboard mask) // Generate occupancy bitboard
+Bitboard maskOccupancy(int index, Bitboard mask)
 {
     Bitboard occ = 0ULL;
     int bits = countBits(mask);
+
+    Bitboard temp = mask; // <<< WICHTIG: Kopie erzeugen
+
     for (int i = 0; i < bits; i++)
     {
-        int sq = popLSB(mask);
+        int sq = popLSB(temp); // <<< NICHT mask verändern!
         if (index & (1 << i))
             occ |= 1ULL << sq;
     }
     return occ;
 }
 
-void initBishopRookTables() // Init the attack tables for the rook and the bishop
+void initBishopRookTables()
 {
     for (int sq = 0; sq < 64; ++sq)
     {
-        Bitboard mask = bishopMasks[sq]; // from masks.h
-        int bits = countBits(mask);
+        // ================= BISHOP =================
+        Bitboard mask = bishopMasks[sq];
+        int bits = bishopRelevantBits[sq];
         int variations = 1 << bits;
+
         for (int i = 0; i < variations; ++i)
         {
-            Bitboard occ = maskOccupancy(i, mask);
-            int index = (occ * bishopMagics[sq]) >> (64 - bishopRelevantBits[sq]); // from magic.h & generatemovesvar.h
+            Bitboard occ = maskOccupancy(i, bishopMasks[sq]);
+
+            int index = (occ * bishopMagics[sq]) >> (64 - bits);
             bishopAttacks[sq][index] = computeBishopTable(sq, occ);
         }
 
-        mask = rookMasks[sq]; // from masks.h
+        // ================= ROOK =================
+        mask = rookMasks[sq];
         int bits2 = countBits(mask);
         int variations2 = 1 << bits2;
+
         for (int i = 0; i < variations2; ++i)
         {
             Bitboard occ = maskOccupancy(i, mask);
-            int index = (occ * rookMagics[sq]) >> (64 - rookRelevantBits[sq]); // from magic.h & generatemovesvar.h
-            rookAttacks[sq][index] = computeRookTable(sq, occ);
+            Bitboard occMasked = occ & mask; // <<< WICHTIG
+
+            int index = (occMasked * rookMagics[sq]) >>
+                        (64 - rookRelevantBits[sq]);
+
+            rookAttacks[sq][index] = computeRookTable(sq, occMasked);
         }
     }
 }

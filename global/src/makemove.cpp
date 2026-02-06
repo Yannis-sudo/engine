@@ -3,21 +3,23 @@
 // Führt einen Zug auf dem Board aus
 void makemove(Board &board, const Move &move)
 {
-    Color side  = board.sideToMove;
+
+    Color side = board.sideToMove;
     Color enemy = (side == WHITE ? BLACK : WHITE);
 
-    int from  = move.from;
-    int to    = move.to;
+    int from = move.from;
+    int to = move.to;
     int piece = move.piece;
+
 
     // --- Save history for undo ---
     HistoryEntry &h = board.history[board.historySize++];
-    h.zobristKey      = board.zobristKey;
-    h.castlingRights  = board.castlingRights;
+    h.zobristKey = board.zobristKey;
+    h.castlingRights = board.castlingRights;
     h.enPassantSquare = board.en_passant_square;
-    h.halfmoveClock   = board.halfmoveclock;
-    h.move            = move;
-    h.capturedPiece   = -1;
+    h.halfmoveClock = board.halfmoveclock;
+    h.move = move;
+    h.capturedPiece = -1;
 
     // --- Update halfmove clock ---
     if (piece == PAWN || move.captured)
@@ -74,7 +76,7 @@ void makemove(Board &board, const Move &move)
             if (to == 6) // White king-side
             {
                 board.pieces[WHITE][ROOK] &= ~(1ULL << 7);
-                board.pieces[WHITE][ROOK] |=  (1ULL << 5);
+                board.pieces[WHITE][ROOK] |= (1ULL << 5);
 
                 board.zobristKey ^= zobristPiece[WHITE][ROOK][7];
                 board.zobristKey ^= zobristPiece[WHITE][ROOK][5];
@@ -82,7 +84,7 @@ void makemove(Board &board, const Move &move)
             else if (to == 2) // White queen-side
             {
                 board.pieces[WHITE][ROOK] &= ~(1ULL << 0);
-                board.pieces[WHITE][ROOK] |=  (1ULL << 3);
+                board.pieces[WHITE][ROOK] |= (1ULL << 3);
 
                 board.zobristKey ^= zobristPiece[WHITE][ROOK][0];
                 board.zobristKey ^= zobristPiece[WHITE][ROOK][3];
@@ -93,7 +95,7 @@ void makemove(Board &board, const Move &move)
             if (to == 62) // Black king-side
             {
                 board.pieces[BLACK][ROOK] &= ~(1ULL << 63);
-                board.pieces[BLACK][ROOK] |=  (1ULL << 61);
+                board.pieces[BLACK][ROOK] |= (1ULL << 61);
 
                 board.zobristKey ^= zobristPiece[BLACK][ROOK][63];
                 board.zobristKey ^= zobristPiece[BLACK][ROOK][61];
@@ -101,7 +103,7 @@ void makemove(Board &board, const Move &move)
             else if (to == 58) // Black queen-side
             {
                 board.pieces[BLACK][ROOK] &= ~(1ULL << 56);
-                board.pieces[BLACK][ROOK] |=  (1ULL << 59);
+                board.pieces[BLACK][ROOK] |= (1ULL << 59);
 
                 board.zobristKey ^= zobristPiece[BLACK][ROOK][56];
                 board.zobristKey ^= zobristPiece[BLACK][ROOK][59];
@@ -134,25 +136,24 @@ void makemove(Board &board, const Move &move)
     board.updateOccupancy();
 }
 
-
 void undomove(Board &board)
 {
     HistoryEntry &h = board.history[--board.historySize];
 
     Move move = h.move;
     Color enemy = board.sideToMove;
-    Color side  = (enemy == WHITE ? BLACK : WHITE);
+    Color side = (enemy == WHITE ? BLACK : WHITE);
 
-    int from  = move.from;
-    int to    = move.to;
+    int from = move.from;
+    int to = move.to;
     int piece = move.piece;
 
     // --- Restore simple board state ---
-    board.sideToMove       = side;
-    board.zobristKey       = h.zobristKey;
-    board.castlingRights   = h.castlingRights;
+    board.sideToMove = side;
+    board.zobristKey = h.zobristKey;
+    board.castlingRights = h.castlingRights;
     board.en_passant_square = h.enPassantSquare;
-    board.halfmoveclock    = h.halfmoveClock;
+    board.halfmoveclock = h.halfmoveClock;
 
     // --- Remove piece from target square ---
     if (move.promotion)
@@ -185,12 +186,12 @@ void undomove(Board &board)
             if (to == 6)
             {
                 board.pieces[WHITE][ROOK] &= ~(1ULL << 5);
-                board.pieces[WHITE][ROOK] |=  (1ULL << 7);
+                board.pieces[WHITE][ROOK] |= (1ULL << 7);
             }
             else if (to == 2)
             {
                 board.pieces[WHITE][ROOK] &= ~(1ULL << 3);
-                board.pieces[WHITE][ROOK] |=  (1ULL << 0);
+                board.pieces[WHITE][ROOK] |= (1ULL << 0);
             }
         }
         else
@@ -198,12 +199,12 @@ void undomove(Board &board)
             if (to == 62)
             {
                 board.pieces[BLACK][ROOK] &= ~(1ULL << 61);
-                board.pieces[BLACK][ROOK] |=  (1ULL << 63);
+                board.pieces[BLACK][ROOK] |= (1ULL << 63);
             }
             else if (to == 58)
             {
                 board.pieces[BLACK][ROOK] &= ~(1ULL << 59);
-                board.pieces[BLACK][ROOK] |=  (1ULL << 56);
+                board.pieces[BLACK][ROOK] |= (1ULL << 56);
             }
         }
     }
@@ -211,7 +212,6 @@ void undomove(Board &board)
     // --- Recalculate occupancy ---
     board.updateOccupancy();
 }
-
 
 int getPieceTypeOnSquare(const Board &board, int sq)
 {

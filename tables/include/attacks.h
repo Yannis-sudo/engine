@@ -8,7 +8,7 @@
 #include "../../global/include/generatemovesvar.h"
 #include "./magic.h"
 
-extern Bitboard bishopAttacks[64][512]; // Attack Table for Bishop
+extern Bitboard bishopAttacks[64][1024]; // Attack Table for Bishop
 extern Bitboard rookAttacks[64][4096]; // Attack Table for Rook
 extern Bitboard knightAttacks[64]; // Attack Table for Knight
 extern Bitboard kingAttacks[64]; // Attack Table for Rook

@@ -8,6 +8,7 @@
 #pragma once
 
 #include "../../global/include/bitboard.h"
+#include <iostream> // Remove this line
 
 extern Bitboard bishopMasks[64]; // Mask Table for bishop
 extern Bitboard rookMasks[64]; // Mask table for rook

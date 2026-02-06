@@ -122,14 +122,18 @@ MoveList generateMoves(Board &board)
 
         makemove(board, move);
 
-        Color us   = sideBefore;        // side that made the move
-        Color them = board.sideToMove;  // side to move now
+        Color us   = sideBefore;
+        Color them = board.sideToMove;
 
         Bitboard kingBB = board.pieces[us][KING];
-        int kingSq = bitScanForward(kingBB);
 
-        if (!isSquareAttacked(board, them, kingSq))
-            list.addLegal(move);
+        // WICHTIG: König darf nicht verschwinden
+        if (kingBB != 0)
+        {
+            int kingSq = bitScanForward(kingBB);
+            if (!isSquareAttacked(board, them, kingSq))
+                list.addLegal(move);
+        }
 
         undomove(board);
     }
@@ -138,48 +142,58 @@ MoveList generateMoves(Board &board)
 }
 
 
-
-MoveList generateCaptures(Board &board) {
+MoveList generateCaptures(Board &board)
+{
     MoveList list;
     const Color side = board.sideToMove;
     const Color opp = (Color)(side ^ 1);
 
     // PAWN WHITE / BLACK
     Bitboard pawns = board.pieces[side][PAWN];
-    while (pawns) {
+    while (pawns)
+    {
         const int from = popLSB(pawns);
-        if (side == WHITE) {
+        if (side == WHITE)
+        {
             Bitboard attacks = pawnAttacksWhite[from] & board.occupied[BLACK];
-            while (attacks) {
+            while (attacks)
+            {
                 const int to = popLSB(attacks);
                 list.add({from, to, PAWN, true, false, false, false});
             }
-        } else {
+        }
+        else
+        {
             Bitboard attacks = pawnAttacksBlack[from] & board.occupied[WHITE];
-            while (attacks) {
+            while (attacks)
+            {
                 const int to = popLSB(attacks);
-                list.add({from , to, PAWN, true, false, false, false});
+                list.add({from, to, PAWN, true, false, false, false});
             }
         }
     }
 
     // KNIGHT
     Bitboard knights = board.pieces[side][KNIGHT];
-    while (knights) {
+    while (knights)
+    {
         int from = popLSB(knights);
         Bitboard attacks = knightAttacks[from] & board.occupied[opp];
-        while (attacks) {
+        while (attacks)
+        {
             int to = popLSB(attacks);
-            list.add({from , to, KNIGHT, true, false, false, false});
+            list.add({from, to, KNIGHT, true, false, false, false});
         }
     }
 
     // KING
     Bitboard king = board.pieces[side][KING];
-    while (king) {
+    while (king)
+    {
         int from = popLSB(king);
         Bitboard attacks = kingAttacks[from] & board.occupied[opp];
-        while (attacks) {
+        while (attacks)
+        {
             int to = popLSB(attacks);
             list.add({from, to, KING, true, false, false, false});
         }
@@ -188,20 +202,24 @@ MoveList generateCaptures(Board &board) {
     // BISHOP
     Bitboard bishops = board.pieces[side][BISHOP];
     Bitboard occ = board.occupiedAll;
-    while (bishops) {
+    while (bishops)
+    {
         int from = popLSB(bishops);
         Bitboard attacks = getBishopAttacks(from, occ) & board.occupied[opp];
-        while (attacks) {
+        while (attacks)
+        {
             int to = popLSB(attacks);
             list.add({from, to, BISHOP, true, false, false, false});
         }
     }
     // ROOK
     Bitboard rooks = board.pieces[side][ROOK];
-    while (rooks) {
+    while (rooks)
+    {
         int from = popLSB(rooks);
         Bitboard attacks = getRookAttacks(from, occ) & board.occupied[opp];
-        while (attacks) {
+        while (attacks)
+        {
             int to = popLSB(attacks);
             list.add({from, to, ROOK, true, false, false, false});
         }
@@ -209,13 +227,15 @@ MoveList generateCaptures(Board &board) {
 
     // QUEEN
     Bitboard queens = board.pieces[side][QUEEN];
-    while (queens) {
+    while (queens)
+    {
         int from = popLSB(queens);
-        Bitboard attacks = (getBishopAttacks(from , occ) | getRookAttacks(from, occ)) & board.occupied[opp];
-        while (attacks) {
+        Bitboard attacks = (getBishopAttacks(from, occ) | getRookAttacks(from, occ)) & board.occupied[opp];
+        while (attacks)
+        {
             int to = popLSB(attacks);
             list.add({from, to, QUEEN, true, false, false, false});
-        } 
+        }
     }
 
     return list;

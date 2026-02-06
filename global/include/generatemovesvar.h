@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include "../../tables/include/masks.h"
 
 // Relevant Bits
