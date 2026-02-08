@@ -32,7 +32,15 @@ bool isCheck(const Board &board, Color side)
     Color enemy = (side == WHITE ? BLACK : WHITE);
 
     Bitboard kingBB = board.pieces[side][KING];
+
+    if (kingBB == 0) {
+        std::cout << "KING BITBOARD == 0 in isCheck" << std::endl;
+    }
+
     int kingSq = __builtin_ctzll(kingBB);
+    if (kingSq < 0 || kingSq > 63) {
+        std::cout << "INVALID KING SQARE in isCheck: " << kingSq << std::endl;
+    }
 
     // Knight
     if (knightAttacks[kingSq] & board.pieces[enemy][KNIGHT])

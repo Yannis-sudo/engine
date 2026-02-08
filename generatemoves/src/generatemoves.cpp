@@ -9,7 +9,7 @@ void generateKnightMoves(const Board &board, Color side, MoveList &list) noexcep
     while (knights)
     {
         int from = popLSB(knights);
-        Bitboard attacks = knightAttacks[from] & ~board.occupied[side];
+        Bitboard attacks = (knightAttacks[from] & ~board.occupied[side]) & ~board.pieces[!side][KING];
 
         while (attacks)
         {
@@ -27,7 +27,7 @@ void generateKingMoves(const Board &board, Color side, MoveList &list) noexcept
     while (king)
     {
         int from = popLSB(king);
-        Bitboard attacks = kingAttacks[from] & ~board.occupied[side];
+        Bitboard attacks = (kingAttacks[from] & ~board.occupied[side]) & ~board.pieces[!side][KING];
 
         while (attacks)
         {
@@ -49,7 +49,7 @@ void generateBishopMoves(const Board &board, Color side, MoveList &list) noexcep
     while (bishops)
     {
         int from = popLSB(bishops);
-        Bitboard attacks = getBishopAttacks(from, occ) & ~board.occupied[side];
+        Bitboard attacks = (getBishopAttacks(from, occ) & ~board.occupied[side]) & ~board.pieces[!side][KING];
 
         while (attacks)
         {
@@ -68,7 +68,7 @@ void generateRookMoves(const Board &board, Color side, MoveList &list) noexcept
     while (rooks)
     {
         int from = popLSB(rooks);
-        Bitboard attacks = getRookAttacks(from, occ) & ~board.occupied[side]; // Lookup rook attacks
+        Bitboard attacks = (getRookAttacks(from, occ) & ~board.occupied[side]) & ~board.pieces[!side][KING]; // Lookup rook attacks
 
         // Quiet moves
         while (attacks)
@@ -88,7 +88,7 @@ void generateQueenMoves(const Board &board, Color side, MoveList &list) noexcept
     while (queens)
     {
         int from = popLSB(queens);
-        Bitboard attacks = getQueenAttacks(from, occ) & ~board.occupied[side];
+        Bitboard attacks = (getQueenAttacks(from, occ) & ~board.occupied[side]) & ~board.pieces[!side][KING];
 
         while (attacks)
         {
@@ -155,7 +155,8 @@ MoveList generateCaptures(Board &board)
         const int from = popLSB(pawns);
         if (side == WHITE)
         {
-            Bitboard attacks = pawnAttacksWhite[from] & board.occupied[BLACK];
+            Bitboard occ_without_king = board.occupied[BLACK] & ~board.pieces[BLACK][KING];
+            Bitboard attacks = pawnAttacksWhite[from] & occ_without_king;
             while (attacks)
             {
                 const int to = popLSB(attacks);
@@ -164,7 +165,8 @@ MoveList generateCaptures(Board &board)
         }
         else
         {
-            Bitboard attacks = pawnAttacksBlack[from] & board.occupied[WHITE];
+            Bitboard occ_without_king = board.occupied[WHITE] & ~board.pieces[WHITE][KING];
+            Bitboard attacks = pawnAttacksBlack[from] & occ_without_king;
             while (attacks)
             {
                 const int to = popLSB(attacks);
@@ -172,13 +174,13 @@ MoveList generateCaptures(Board &board)
             }
         }
     }
-
     // KNIGHT
     Bitboard knights = board.pieces[side][KNIGHT];
+    Bitboard occ_without_king = board.occupied[opp] & ~board.pieces[opp][KING];
     while (knights)
     {
         int from = popLSB(knights);
-        Bitboard attacks = knightAttacks[from] & board.occupied[opp];
+        Bitboard attacks = knightAttacks[from] & occ_without_king;
         while (attacks)
         {
             int to = popLSB(attacks);
@@ -191,7 +193,7 @@ MoveList generateCaptures(Board &board)
     while (king)
     {
         int from = popLSB(king);
-        Bitboard attacks = kingAttacks[from] & board.occupied[opp];
+        Bitboard attacks = kingAttacks[from] & occ_without_king;
         while (attacks)
         {
             int to = popLSB(attacks);
@@ -205,7 +207,7 @@ MoveList generateCaptures(Board &board)
     while (bishops)
     {
         int from = popLSB(bishops);
-        Bitboard attacks = getBishopAttacks(from, occ) & board.occupied[opp];
+        Bitboard attacks = getBishopAttacks(from, occ) & occ_without_king;
         while (attacks)
         {
             int to = popLSB(attacks);
@@ -217,7 +219,7 @@ MoveList generateCaptures(Board &board)
     while (rooks)
     {
         int from = popLSB(rooks);
-        Bitboard attacks = getRookAttacks(from, occ) & board.occupied[opp];
+        Bitboard attacks = getRookAttacks(from, occ) & occ_without_king;
         while (attacks)
         {
             int to = popLSB(attacks);
@@ -230,7 +232,7 @@ MoveList generateCaptures(Board &board)
     while (queens)
     {
         int from = popLSB(queens);
-        Bitboard attacks = (getBishopAttacks(from, occ) | getRookAttacks(from, occ)) & board.occupied[opp];
+        Bitboard attacks = (getBishopAttacks(from, occ) | getRookAttacks(from, occ)) & occ_without_king;
         while (attacks)
         {
             int to = popLSB(attacks);

@@ -55,6 +55,23 @@ find_package(Threads)
 find_package(ZLIB)
 find_package(OpenSSL)
 
+option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
+
+if (ENABLE_ASAN)
+    message(STATUS "AddressSanitizer enabled")
+
+    target_compile_options(engine PRIVATE
+        -fsanitize=address
+        -fno-omit-frame-pointer
+        -g
+    )
+
+    target_link_options(engine PRIVATE
+        -fsanitize=address
+    )
+endif()
+
+
 if(OPENSSL_FOUND)
     include_directories(${OPENSSL_INCLUDE_DIR})
 endif()

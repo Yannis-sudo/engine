@@ -7,8 +7,11 @@ std::string bestmove(Board &board, bool maximizing, int maxDepth)
 {
     MoveList rootMoves = generateMoves(board);
 
-    for (int i = 0; i < rootMoves.count2; i++) {
-        std::cout << rootMoves.legalMoves[i].from << "-" << rootMoves.legalMoves[i].to << std::endl;
+    if (rootMoves.count2 == 0) {
+        if (isGameOver(board) != GAME_ONGOING) {
+            return "game not ongoing";
+            std::cout << "game not ongoing" << std::endl;
+        }
     }
 
     Move bestMove;

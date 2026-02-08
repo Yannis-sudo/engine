@@ -24,6 +24,11 @@ int quiescence(Board &board, int alpha, int beta)
 
         // find king square without modifying bitboard
         Bitboard kingBB = board.pieces[us][KING];
+
+        if (kingBB == 0) {
+            std::cout << "KING BITBOARD == 0" << std::endl;
+        }
+
         int kingSq = bitScanForward(kingBB);
 
         if (!isSquareAttacked(board, them, kingSq))

@@ -9,6 +9,7 @@ bin/
 lib/
 out/
 dist/
+bash/
 
 # CMake
 CMakeFiles/

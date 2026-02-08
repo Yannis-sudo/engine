@@ -3,6 +3,10 @@
 // Führt einen Zug auf dem Board aus
 void makemove(Board &board, const Move &move)
 {
+    if (board.pieces[WHITE][KING] == 0 || board.pieces[BLACK][KING] == 0)
+    {
+        std::cout << "KING BB == 0 in makemove line 7" << std::endl;
+    }
 
     Color side = board.sideToMove;
     Color enemy = (side == WHITE ? BLACK : WHITE);
@@ -11,6 +15,11 @@ void makemove(Board &board, const Move &move)
     int to = move.to;
     int piece = move.piece;
 
+    int capturedType = getPieceTypeOnSquare(board, to);
+    if (capturedType == KING)
+    {
+        std::cout << "WARNING: Capturing a king at " << to << std::endl;
+    }
 
     // --- Save history for undo ---
     HistoryEntry &h = board.history[board.historySize++];
@@ -134,10 +143,20 @@ void makemove(Board &board, const Move &move)
 
     // --- Update occupancy bitboards ---
     board.updateOccupancy();
+
+    if (board.pieces[WHITE][KING] == 0 || board.pieces[BLACK][KING] == 0)
+    {
+        std::cout << "KING BB == 0 in makemove line 139" << std::endl;
+    }
 }
 
 void undomove(Board &board)
 {
+    if (board.pieces[WHITE][KING] == 0 || board.pieces[BLACK][KING] == 0)
+    {
+        std::cout << "KING BB == 0 in undomove line 149" << std::endl;
+    }
+
     HistoryEntry &h = board.history[--board.historySize];
 
     Move move = h.move;
@@ -211,6 +230,11 @@ void undomove(Board &board)
 
     // --- Recalculate occupancy ---
     board.updateOccupancy();
+
+    if (board.pieces[WHITE][KING] == 0 || board.pieces[BLACK][KING] == 0)
+    {
+        std::cout << "KING BB == 0 in undomove line 227" << std::endl;
+    }
 }
 
 int getPieceTypeOnSquare(const Board &board, int sq)

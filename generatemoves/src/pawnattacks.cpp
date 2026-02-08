@@ -46,7 +46,7 @@ void generatePawnMoves(const Board &board, Color side, MoveList &list)
             // links schlagen (nur wenn nicht auf Spalte a)
             if (file > 0) {
                 int capSq = from + 7;
-                if (board.occupied[BLACK] & (1ULL << capSq)) {
+                if ((board.occupied[BLACK] & ~board.pieces[BLACK][KING]) & (1ULL << capSq)) {
                     if (rank == 6) {
                         // Promotion mit Schlag
                         list.add({from, capSq, PAWN, true, true, false, false, QUEEN});
@@ -61,7 +61,7 @@ void generatePawnMoves(const Board &board, Color side, MoveList &list)
             // rechts schlagen (nur wenn nicht auf Spalte h)
             if (file < 7) {
                 int capSq = from + 9;
-                if (board.occupied[BLACK] & (1ULL << capSq)) {
+                if ((board.occupied[BLACK] & ~board.pieces[BLACK][KING]) & (1ULL << capSq)) {
                     if (rank == 6) {
                         list.add({from, capSq, PAWN, true, true, false, false, QUEEN});
                         list.add({from, capSq, PAWN, true, true, false, false, ROOK});
@@ -76,7 +76,7 @@ void generatePawnMoves(const Board &board, Color side, MoveList &list)
             // rechts schlagen (nur wenn nicht auf Spalte a)
             if (file > 0) {
                 int capSq = from - 9;
-                if (board.occupied[WHITE] & (1ULL << capSq)) {
+                if ((board.occupied[WHITE] & ~board.pieces[WHITE][KING]) & (1ULL << capSq)) {
                     if (rank == 1) {
                         list.add({from, capSq, PAWN, true, true, false, false, QUEEN});
                         list.add({from, capSq, PAWN, true, true, false, false, ROOK});
@@ -90,7 +90,7 @@ void generatePawnMoves(const Board &board, Color side, MoveList &list)
             // links schlagen (nur wenn nicht auf Spalte h)
             if (file < 7) {
                 int capSq = from - 7;
-                if (board.occupied[WHITE] & (1ULL << capSq)) {
+                if ((board.occupied[WHITE] & ~board.pieces[WHITE][KING]) & (1ULL << capSq)) {
                     if (rank == 1) {
                         list.add({from, capSq, PAWN, true, true, false, false, QUEEN});
                         list.add({from, capSq, PAWN, true, true, false, false, ROOK});
