@@ -39,7 +39,7 @@ int minimax(Board &board, const int depht, int alpha, int beta)
             return 1000000;
         if (result == BLACK_WINS)
             return -1000000;
-        return 0;
+        return board.sideToMove == WHITE ? -1 : 1;
     }
 
     // Generate Moves
@@ -99,5 +99,5 @@ int minimax(Board &board, const int depht, int alpha, int beta)
         entry.flag = TT_EXACT;
     return bestScore;
     */
-   return bestScore;
+    return bestScore;
 }
